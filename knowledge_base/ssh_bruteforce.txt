@@ -1,0 +1,35 @@
+TITLE: SSH and Credential Brute Force (MITRE ATT&CK T1110.001 / T1110.003)
+
+Brute force attacks attempt to gain access to a service by systematically trying many username
+and password combinations, most commonly against SSH, FTP, or web login forms. In CICIDS2017
+this corresponds to the "SSH-Patator" and "FTP-Patator" labels, generated using the Patator
+brute-forcing tool.
+
+Sub-techniques:
+- Password Guessing (T1110.001): Repeated login attempts using a list of common or likely
+  passwords against one or more known usernames, without prior knowledge of valid credentials.
+- Password Spraying (T1110.003): Trying one or a few common passwords against MANY different
+  usernames, to avoid triggering per-account lockout thresholds. Appears as moderate failed-login
+  volume spread across many distinct accounts from one source, rather than many attempts on one
+  account.
+- Credential Stuffing (T1110.004): Using previously leaked username/password pairs from other
+  breaches, typically resulting in a small number of successful logins mixed into a large volume
+  of failed attempts, since most leaked credentials won't match.
+
+Detection signals in authentication logs: many "Failed password" entries for the same destination
+service and username (or many usernames, for spraying) from a single source IP within a short
+time window, often followed by either persistence (repeated attempts over hours) or sudden stop
+and a single "Accepted password" entry (indicating success). In flow-level data, this appears as
+many short-duration flows to a single destination port (commonly 22 for SSH, 21 for FTP) with
+very regular timing (low variance in time between attempts, since the tool paces requests
+programmatically), and small, consistent packet sizes per authentication attempt.
+
+Distinguishing brute force from normal failed logins: a real user mistyping a password produces
+1-2 isolated failed attempts with irregular timing and then a success; a brute-force tool
+produces many attempts (often 4 or more) within a very short, tight time window (seconds), usually
+with mechanically even spacing between attempts.
+
+Mitigation: enforce account lockout or exponential backoff after N failed attempts, rate-limit
+connections per source IP at the firewall, use key-based authentication instead of passwords where
+possible, deploy fail2ban-style automatic temporary IP banning, and require multi-factor
+authentication so a correct password guess alone is insufficient for access.

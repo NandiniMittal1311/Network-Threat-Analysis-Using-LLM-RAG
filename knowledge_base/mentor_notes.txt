@@ -1,0 +1,34 @@
+TITLE: Operational Context - SIEM Pipeline, Zero Trust, and Scoring (Mentor's Study Notes)
+
+SIEM and Log Pipeline: Raw events originate from firewall logs, server logs, and authentication
+logs. These are normalized into structured security events, forwarded into a SIEM (Security
+Information and Event Management) system, which correlates events across sources and raises
+alerts for an analyst to triage. This mirrors the pipeline built in this project: raw auth.log /
+flow data -> parsed structured events -> rule/anomaly detection -> LLM+RAG analysis -> alert.
+
+FICAR Module (severity scoring framework, levels 1-4, scored 0-10): Used to rate the severity of
+a detected event based on factors such as scope (single host vs network-wide), confidence
+(certainty the event is malicious), impact (potential damage), and recurrence. A port scan from a
+single source might score low-to-moderate (level 1-2), while a confirmed multi-stage infiltration
+with lateral movement would score high (level 3-4). This scoring approach maps directly onto the
+"severity" field requested from the LLM's structured JSON output in this project.
+
+Zero Trust Security: Operates on the principle "never trust, always verify" - no device, user, or
+network segment is implicitly trusted, even inside the perimeter. Every access request is
+authenticated, authorized, and continuously validated regardless of origin. Relevant to this
+project because: (a) internal-to-internal lateral movement (as in Infiltration attacks) is exactly
+the blind spot Zero Trust architecture is designed to close, since perimeter-only defenses assume
+internal traffic is safe; (b) an LLM+RAG detection layer can act as a continuous verification
+mechanism, re-evaluating the risk of ongoing flows rather than only checking at initial connection
+time.
+
+IP-Blocking Rules and Operational Process: A practical response pipeline for confirmed malicious
+IPs: (1) detection layer flags the source IP with a severity score, (2) above a defined threshold,
+a draft firewall/iptables block rule is generated automatically, (3) a human analyst reviews and
+approves the block before it is applied (to avoid false-positive outages), (4) the block and its
+justification are logged for audit, (5) periodic review un-blocks IPs after a cooldown period if
+no repeat offenses occur. This maps to the "Alert and response" stage of the system's flow.
+
+Offensive vs Defensive ML: Offensive ML includes using machine learning to automate attacks (e.g.
+intelligently timing brute-force or evasion). Defensive ML, which this project focuses on, uses ML
+and LLMs to detect, classify, and explain malicious behavior, and to generate mitigations.

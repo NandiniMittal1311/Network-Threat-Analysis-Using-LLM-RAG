@@ -1,0 +1,18 @@
+Feature matrix shape: (110723, 78)
+Attack rate in data: 0.24455623492860562
+Estimated contamination (attack proportion): 0.2446
+
+Confusion matrix (rows=actual, cols=predicted):
+[[69114 14531]
+ [14531 12547]]
+
+Classification report:
+              precision    recall  f1-score   support
+
+      normal       0.83      0.83      0.83     83645
+      attack       0.46      0.46      0.46     27078
+
+    accuracy                           0.74    110723
+   macro avg       0.64      0.64      0.64    110723
+weighted avg       0.74      0.74      0.74    110723
+

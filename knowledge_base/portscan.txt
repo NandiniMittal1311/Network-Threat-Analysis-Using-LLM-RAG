@@ -1,0 +1,26 @@
+TITLE: Network Service Scanning / Port Scan (MITRE ATT&CK T1046)
+
+Port scanning is a reconnaissance technique where an attacker probes a range of ports on one or
+more hosts to discover open services, running software versions, and potential entry points
+before launching a targeted exploit.
+
+Common scan types (as also referenced in CICIDS2017's Friday PortScan capture):
+- SYN scan (stealth scan, "-sS" in nmap): sends a SYN packet and waits for SYN-ACK without
+  completing the handshake. Leaves a trail of many SYN flags with few completed ACK/FIN sequences
+  across many distinct destination ports from a single source in a short time window.
+- Connect scan ("-sT"): completes full TCP handshakes, more easily logged by target but noisier.
+- FIN/NULL/Xmas scans ("-sF", "-sN", "-sX"): send unusual flag combinations to probe firewall
+  rules and evade basic detection; these produce flows with abnormal flag patterns.
+
+Detection signals in flow data: a single source IP connecting to many distinct destination ports
+in a short time window, very short Flow Duration per connection (scan probes are brief), low
+Total Fwd/Bwd Packets per flow (minimal data exchanged), and skewed SYN Flag Count relative to
+ACK/FIN Flag Count.
+
+Why it matters: port scanning itself does not damage a system but is almost always a precursor to
+a more serious attack (exploitation of a discovered open service). Early detection allows blocking
+the source IP before escalation.
+
+Mitigation: rate-limit connection attempts per source IP, close/firewall unused ports, use an IDS
+rule to flag N distinct destination ports from one source within T seconds, and maintain an
+IP-blocking rule set that escalates based on repeated scan behavior from the same source.

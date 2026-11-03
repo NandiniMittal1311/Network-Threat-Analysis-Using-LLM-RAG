@@ -1,0 +1,11 @@
+venv/
+threat/
+data/cicids/combine.csv
+data/cicids/sample.csv
+data/vector_index.faiss
+__pycache__/
+*.pyc
+.env
+*.log
+pass.txt
+pass2.txt

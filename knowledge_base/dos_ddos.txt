@@ -1,0 +1,26 @@
+TITLE: Network Denial of Service (MITRE ATT&CK T1498 / T1499)
+
+Denial of Service (DoS) and Distributed Denial of Service (DDoS) attacks aim to degrade or block
+legitimate access to a network service by exhausting resources such as bandwidth, connection
+slots, or application processing capacity.
+
+Common sub-techniques relevant to flow-based detection:
+- Direct Network Flood (T1498.001): The attacker sends a high volume of packets or requests from
+  one or many sources directly to the target. Signatures: very high Flow Packets/s and Flow Bytes/s,
+  short Flow IAT (inter-arrival time) values indicating rapid-fire packets, and a Down/Up Ratio
+  skewed heavily toward incoming traffic.
+- Reflection Amplification (T1498.002): Attacker spoofs the victim's IP and sends requests to
+  third-party servers (DNS, NTP) which reply directly to the victim with amplified traffic volume.
+- Application-layer flood (T1499.002, e.g. "Hulk", "GoldenEye", "Slowloris", "Slowhttptest" in
+  CICIDS2017): Exploits HTTP/HTTPS connection handling rather than raw bandwidth. Slowloris and
+  Slowhttptest keep many connections open with minimal data, producing LONG Flow Duration and
+  Active Mean values, low Flow Bytes/s, but exhausting server connection pools. Hulk and GoldenEye
+  instead flood with many rapid full requests, producing high packet/byte rates similar to
+  volumetric floods.
+
+Detection signals in flow data: abnormal Flow Packets/s, Flow Bytes/s, Flow Duration, Active
+Mean/Idle Mean ratios, and SYN/ACK flag count imbalances (many SYN with few completing ACK/FIN
+indicates connection exhaustion rather than legitimate traffic).
+
+Mitigation: rate limiting, SYN cookies, connection timeouts, traffic scrubbing, upstream ISP-level
+filtering for volumetric floods, and Web Application Firewall rules for application-layer floods.

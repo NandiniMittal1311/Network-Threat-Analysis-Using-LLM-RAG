@@ -1,0 +1,31 @@
+TITLE: PHP2Shell Remote Code Execution Campaign (CVE-2026-109618, CVE-2026-109619, CVE-2026-115560)
+
+In October 2026, two critical PHP remote code execution vulnerabilities (CVSS 9.2 each) were disclosed
+ahead of coordinated release after technical details leaked on October 20. PHP issued emergency patches
+on October 21, 2026 for versions 8.2 through 8.5, with backports for older versions. A third related
+vulnerability, CVE-2026-115560, affecting specific session configurations, was disclosed shortly after
+on October 23.
+
+Attack mechanism: The flaws affect PHP's handling of web requests, with mod_php deployments at highest
+risk since an attack can succeed before any application code even executes. One confirmed exploitation
+path (CVE-2026-109618) uses a memory-exhaustion technique via deeply nested field names in a request,
+intended to trigger worker crashes or heap corruption that can be leveraged for code execution. A
+second observed scanning pattern targets upload-progress tracking endpoints.
+
+Detection signals in web/application logs: a sudden spike in requests with abnormally large or deeply
+nested form field names/arrays; requests probing upload-progress or multipart-form endpoints without
+a legitimate file upload following; repeated requests from the same source IP within seconds of each
+other testing slightly different payload structures; PHP worker process crashes or out-of-memory
+errors correlated with specific request patterns; traffic surges within minutes of a public CVE
+disclosure, often before an organization has had time to patch.
+
+Why it's operationally significant: exploitation attempts began days before public disclosure (per
+Amazon's telemetry, from October 17), and scaled from thousands to millions of requests within hours
+of the technical details becoming public, demonstrating how fast mass-scanning campaigns now move
+once a high-impact CVE affecting widely-deployed software leaks.
+
+Mitigation: apply the October 21 emergency patches immediately; where patching is delayed, apply the
+temporary configuration mitigation PHP published on October 23 for the session-related attack path;
+monitor for the deeply-nested-field and upload-progress-probe signatures above even on patched hosts,
+since scanning continues broadly after disclosure; treat any PHP worker crash spike as a priority
+investigation item during this period.

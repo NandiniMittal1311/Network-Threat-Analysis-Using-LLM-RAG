@@ -1,0 +1,22 @@
+TITLE: Infiltration and Exploitation of Vulnerable Services (MITRE ATT&CK T1190 / CVE-2014-0160)
+
+Infiltration attacks in CICIDS2017 simulate an attacker delivering malware via a vulnerable
+application (e.g. a malicious file opened by a victim), followed by internal reconnaissance and
+lateral movement (including a portscan step launched from the now-compromised internal host
+against other internal clients).
+
+Detection signals: an internal host that previously behaved as a normal client suddenly
+initiating outbound scanning-like behavior against other internal hosts (many short flows to many
+destination ports from an internal, not external, source) — this "internal pivot" pattern is a
+strong signal of post-compromise lateral movement, distinct from external-facing scans.
+
+Heartbleed (CVE-2014-0160) is a specific buffer over-read vulnerability in OpenSSL's heartbeat
+extension (affecting versions 1.0.1 through 1.0.1f), allowing an attacker to read up to 64KB of
+server memory per request, potentially leaking private keys, session tokens, or credentials.
+Detection signal: abnormally large response payload size relative to a tiny heartbeat request
+(large Total Length of Bwd Packets relative to Total Length of Fwd Packets on port 443 flows),
+and repeated requests of this unusual size/ratio pattern from the same source.
+
+Mitigation: patch management (especially OpenSSL versions for Heartbleed), network segmentation
+to limit lateral movement after any single host compromise, and monitoring for anomalous internal
+scan behavior as a sign of post-infiltration pivoting.

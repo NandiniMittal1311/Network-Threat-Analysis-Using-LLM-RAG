@@ -1,0 +1,20 @@
+TITLE: Botnet Command and Control Activity (MITRE ATT&CK T1071 / T1105)
+
+A bot-infected host communicates periodically with a Command and Control (C2) server to receive
+instructions or exfiltrate data. In CICIDS2017, the "Bot" label corresponds to traffic generated
+by the ARES botnet malware running on infected victim machines.
+
+Detection signals in flow data: periodic, regularly-timed connections to a small set of external
+destination IPs/ports (low variance in Flow IAT Mean across repeated flows from the same host,
+since malware beacons on a fixed interval), relatively small and consistent packet sizes for
+beacon check-ins (low Packet Length Std), and occasional larger flows corresponding to payload
+downloads or data exfiltration (spikes in Total Length of Fwd/Bwd Packets).
+
+Why it is hard to catch with simple rules: botnet beacon traffic can closely resemble legitimate
+periodic traffic (software update checks, heartbeat monitoring), so volume-based thresholds alone
+produce many false positives or negatives. Behavioral/statistical modeling of timing regularity
+and destination reputation is typically needed.
+
+Mitigation: DNS/IP reputation blocklists for known C2 infrastructure, egress filtering to restrict
+which external hosts internal machines may contact, and anomaly detection on beacon timing
+regularity combined with destination rarity (host contacting an IP none of its peers contact).
